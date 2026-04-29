@@ -1,0 +1,567 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.wrap { padding: 12px 0 20px; font-family: var(--font-sans); }
+.intro { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 10px; }
+.legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 10px; align-items: flex-start; }
+.leg-group { display: flex; flex-direction: column; gap: 3px; }
+.leg-title { font-size: 9px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 2px; }
+.leg { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--color-text-secondary); }
+.pip { width: 6px; height: 6px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.pip-row { display: flex; gap: 2px; align-items: center; }
+.scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 11px; min-width: 740px; }
+th { padding: 7px 8px; font-weight: 500; font-size: 10px; color: var(--color-text-secondary); border-bottom: 1px solid var(--color-border-tertiary); text-align: left; background: var(--color-background-secondary); }
+th.br { background: var(--color-background-info); color: var(--color-text-info); text-align: center; text-transform: uppercase; letter-spacing: .04em; }
+th.ch { background: var(--color-background-success); color: var(--color-text-success); text-align: center; text-transform: uppercase; letter-spacing: .04em; }
+tbody tr.cat td { background: var(--color-background-tertiary); font-weight: 500; font-size: 10px; color: var(--color-text-secondary); letter-spacing: .05em; text-transform: uppercase; padding: 4px 8px; }
+tbody tr.item { cursor: pointer; transition: background .12s; }
+tbody tr.item:hover, tbody tr.item.open { background: var(--color-background-secondary); }
+tbody tr.item td { border-top: 1px solid var(--color-border-tertiary); padding: 0; vertical-align: top; }
+td.lbl { min-width: 120px; font-weight: 500; font-size: 11px; color: var(--color-text-secondary); padding: 7px 8px; }
+td.lbl .sub { font-size: 10px; font-weight: 400; color: var(--color-text-tertiary); display: block; margin-top: 1px; }
+td.lbl .arr { float: right; font-size: 11px; color: var(--color-text-tertiary); transition: transform .2s; }
+tr.item.open td.lbl .arr { transform: rotate(90deg); }
+.cell-inner { display: flex; flex-direction: column; }
+.half { display: flex; flex-direction: column; padding: 4px 7px 5px; }
+.half-res { border-bottom: 1px dashed var(--color-border-tertiary); }
+.half-tag { font-size: 9px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 2px; }
+.ct { display: flex; align-items: center; gap: 3px; }
+.sym { font-size: 12px; line-height: 1; }
+.lv { font-size: 9px; font-weight: 500; margin-left: 2px; }
+.desc { font-size: 10px; color: var(--color-text-secondary); line-height: 1.4; margin-top: 2px; }
+.src { display: inline-block; margin-top: 3px; font-size: 9px; font-weight: 500; color: var(--color-text-info); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color .15s; }
+.src:hover { border-bottom-color: var(--color-text-info); }
+tr.det td { padding: 0; }
+.det-box { padding: 10px 12px 12px; background: var(--color-background-tertiary); border-left: 3px solid var(--color-border-secondary); }
+.det-box h4 { font-size: 11px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 7px; }
+.det-cols { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
+.det-col h5 { font-size: 9px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 3px; }
+.det-col .sub-h { font-size: 9px; font-weight: 500; color: var(--color-text-tertiary); margin: 5px 0 2px; }
+.det-col p { font-size: 10px; color: var(--color-text-secondary); line-height: 1.5; }
+.hidden { display: none; }
+.fn { font-size: 11px; color: var(--color-text-tertiary); margin-top: 12px; line-height: 1.7; }
+@media(max-width:580px){ .det-cols { grid-template-columns:1fr 1fr; } }
+</style>
+
+<div class="wrap">
+<p class="intro">Target client: $150k–$10M AUM · Branches (FL · TX · CA) vs. Bank Charter (current BBVA model) · Each cell shows <b>Resident</b> (domiciled in the state) and <b>Non-resident</b> (foreign national or no state tax domicile) · Click any row for detail</p>
+
+<div class="legend">
+  <div class="leg-group">
+    <div class="leg-title">Permission</div>
+    <div class="leg"><span style="font-size:12px">✅</span> Permitted</div>
+    <div class="leg"><span style="font-size:12px">⚠️</span> With restrictions</div>
+    <div class="leg"><span style="font-size:12px">❌</span> Not permitted</div>
+  </div>
+  <div class="leg-group">
+    <div class="leg-title">Activity level</div>
+    <div class="leg"><span class="pip" style="background:#1D9E75;width:8px;height:8px"></span> Core</div>
+    <div class="leg"><span class="pip" style="background:#378ADD;width:8px;height:8px"></span> Active</div>
+    <div class="leg"><span class="pip" style="background:#888780;width:8px;height:8px"></span> Niche</div>
+    <div class="leg"><span class="pip" style="background:#D3D1C7;width:8px;height:8px"></span> Marginal</div>
+  </div>
+  <div class="leg-group">
+    <div class="leg-title">Client profile</div>
+    <div class="leg" style="font-size:10px"><b style="font-weight:500">Resident</b> — domiciled in the state (subject to IBBEA §6)</div>
+    <div class="leg" style="font-size:10px"><b style="font-weight:500">Non-resident</b> — foreign national or no state tax domicile</div>
+  </div>
+</div>
+
+<div class="scroll">
+<table id="tbl">
+<thead>
+  <tr>
+    <th rowspan="2" style="vertical-align:bottom;min-width:120px">Product</th>
+    <th colspan="3" class="br">Foreign Bank Branch</th>
+    <th rowspan="2" class="ch" style="vertical-align:bottom">Bank Charter<br><small style="font-weight:400;font-size:9px">(current BBVA model)</small></th>
+  </tr>
+  <tr>
+    <th class="br" style="border-top:1px solid var(--color-border-tertiary)">Florida</th>
+    <th class="br" style="border-top:1px solid var(--color-border-tertiary)">Texas</th>
+    <th class="br" style="border-top:1px solid var(--color-border-tertiary)">California</th>
+  </tr>
+</thead>
+<tbody id="tb"></tbody>
+</table>
+</div>
+
+<p class="fn">
+* <b>IBBEA §6 (1994):</b> prohibits deposits &lt;$100k from state residents in uninsured branches. Does not apply to non-residents or deposits ≥$100k.<br>
+* <b>Bank Charter:</b> no resident/non-resident distinction — can serve any client with the same products and FDIC coverage.
+</p>
+</div>
+
+<script>
+const C = { core:'#1D9E75', active:'#378ADD', niche:'#888780', rare:'#D3D1C7' };
+const LBL = { core:'Core', active:'Active', niche:'Niche', rare:'Marginal' };
+
+function pips(lv) {
+  const order = ['rare','niche','active','core'];
+  const i = order.indexOf(lv);
+  return order.map((_,j) => `<span class="pip" style="background:${j<=i?C[lv]:'var(--color-border-tertiary)'}"></span>`).join('');
+}
+
+function srcLink(url, label) {
+  if (!url) return '';
+  return `<a class="src" href="${url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${label || 'Source'} ↗</a>`;
+}
+
+const DATA = [
+  { cat: 'DEPOSITS' },
+  {
+    id:'checking', prod:'Checking accounts', sub:'Transactional current account',
+    fl:{
+      res:{ s:'❌', lv:'rare', t:'IBBEA §6 blocks retail deposits from FL residents. No checking = no private banking relationship.', src:'https://www.fdic.gov/regulations/laws/rules/6000-100.html', srcLabel:'FDIC / IBBEA §6' },
+      nonres:{ s:'⚠️', lv:'niche', t:'Available for clients not domiciled in FL (e.g. Latin American clients with Miami nexus). More complex process than charter.', src:'https://flofr.gov/sitePages/InternationalBanking.htm', srcLabel:'Florida OFR' }
+    },
+    tx:{
+      res:{ s:'❌', lv:'rare', t:'Same federal restriction. Texas residents cannot open checking accounts at an uninsured foreign branch.', src:'https://www.fdic.gov/regulations/laws/rules/6000-100.html', srcLabel:'FDIC / IBBEA §6' },
+      nonres:{ s:'⚠️', lv:'niche', t:'Available for binational clients (TX-MX families) without TX tax domicile. Limited niche.', src:'https://www.dob.texas.gov/public/uploads/files/Laws-Regulations/statutes/fin_code.pdf', srcLabel:'Texas Finance Code §204' }
+    },
+    ca:{
+      res:{ s:'❌', lv:'rare', t:'DFPI enforces IBBEA without exceptions. Checking for CA residents not available at foreign branches.', src:'https://dfpi.ca.gov/banks-and-credit-unions/foreign-banks/', srcLabel:'California DFPI' },
+      nonres:{ s:'⚠️', lv:'niche', t:'Available for HNW clients with Asia nexus and no CA tax domicile. Niche: Asian expat executives.', src:'https://dfpi.ca.gov/banks-and-credit-unions/foreign-banks/', srcLabel:'California DFPI' }
+    },
+    ch:{ s:'✅', lv:'core', t:'FDIC-insured up to $250k. No resident/non-resident distinction. Anchor product of the private banking relationship.', src:'https://www.fdic.gov/deposit/deposits/insured.html', srcLabel:'FDIC Deposit Insurance' },
+    det:{ title:'Checking accounts — IBBEA §6 restriction is exclusive to state residents',
+      fl_res:'IBBEA §6 applies to "state residents" — a client with Florida tax domicile cannot open checking at an uninsured branch. This blocks the majority of the $150k–$10M domestic segment.',
+      fl_nonres:'For the Latin American non-resident client with a Miami nexus, checking is possible at the branch. This is the natural segment of Miami offshore private banking.',
+      tx_res:'The dominant private banking client profile in Texas (energy sector, agribusiness) is a Texas resident. IBBEA blocks the full private banking relationship.',
+      tx_nonres:'The TX-MX binational client without TX tax residency can open checking at the branch. Small but real niche.',
+      ca_res:'The HNW client from Silicon Valley or LA cannot have checking at a foreign branch.',
+      ca_nonres:'Asian executives in California without local tax domicile (e.g. expats on temporary assignment) can open checking. Specialized niche.',
+      ch:'The bank charter can offer checking to any client regardless of residency, with FDIC coverage and full integration with all other products.' }
+  },
+  {
+    id:'debit', prod:'Debit cards', sub:'Debit card',
+    fl:{
+      res:{ s:'❌', lv:'rare', t:'Derivative of the checking account. No checking for FL residents means no debit card can be issued.', src:'https://www.fdic.gov/regulations/laws/rules/6000-100.html', srcLabel:'FDIC / IBBEA §6' },
+      nonres:{ s:'⚠️', lv:'niche', t:'Available if non-resident client has checking at the branch. More limited functionality than charter.', src:'https://flofr.gov/sitePages/InternationalBanking.htm', srcLabel:'Florida OFR' }
+    },
+    tx:{
+      res:{ s:'❌', lv:'rare', t:'No retail deposit base means no debit card. IBBEA restriction blocks the underlying product.', src:'https://www.fdic.gov/regulations/laws/rules/6000-100.html', srcLabel:'FDIC / IBBEA §6' },
+      nonres:{ s:'⚠️', lv:'niche', t:'Available as an add-on to checking for non-resident clients. Limited niche.', src:'https://www.dob.texas.gov/public/uploads/files/Laws-Regulations/statutes/fin_code.pdf', srcLabel:'Texas Finance Code' }
+    },
+    ca:{
+      res:{ s:'❌', lv:'rare', t:'DFPI enforces IBBEA. No retail deposit means no debit card for CA residents.', src:'https://dfpi.ca.gov/banks-and-credit-unions/foreign-banks/', srcLabel:'California DFPI' },
+      nonres:{ s:'⚠️', lv:'niche', t:'Available if non-resident client has checking open at the branch.', src:'https://dfpi.ca.gov/banks-and-credit-unions/foreign-banks/', srcLabel:'California DFPI' }
+    },
+    ch:{ s:'✅', lv:'core', t:'Premium Visa/Mastercard regardless of residency. Global ATM access. Key daily-use product in private banking.', src:'https://www.fdic.gov/deposit/deposits/insured.html', srcLabel:'FDIC Deposit Insurance' },
+    det:{ title:'Debit cards — derived product of checking; accessible to non-residents if they have the base account',
+      fl_res:'Debit card is inseparable from checking. No checking for FL residents means no card.',
+      fl_nonres:'If the Latin American non-resident client has checking at the branch, a debit card can be issued. More limited than a charter offering.',
+      tx_res:'Same IBBEA block. No base account, no card for Texas residents.',
+      tx_nonres:'Available for binational clients with checking at the branch. Mainly used for international payments.',
+      ca_res:'No retail deposit, no debit card for California residents.',
+      ca_nonres:'Available for non-residents with an account open. Niche of Asian expat executives.',
+      ch:'Premium debit card available to any client with checking, regardless of residency. No operational limitations of the branch model.' }
+  },
+  {
+    id:'mma', prod:'Money market accounts', sub:'High-yield liquid account',
+    fl:{
+      res:{ s:'❌', lv:'rare', t:'Retail deposit subject to IBBEA §6. Blocked for FL residents even though yield is higher than standard checking.', src:'https://www.fdic.gov/regulations/laws/rules/6000-100.html', srcLabel:'FDIC / IBBEA §6' },
+      nonres:{ s:'✅', lv:'active', t:'Available for non-residents. LATAM liquidity hub: HNW Latin American clients actively use MMA in Miami branches.', src:'https://flofr.gov/sitePages/InternationalBanking.htm', srcLabel:'Florida OFR Ch.663' }
+    },
+    tx:{
+      res:{ s:'❌', lv:'rare', t:'Retail deposit. Same restriction for Texas residents in uninsured branches.', src:'https://www.fdic.gov/regulations/laws/rules/6000-100.html', srcLabel:'FDIC / IBBEA §6' },
+      nonres:{ s:'⚠️', lv:'niche', t:'Available for non-residents with TX nexus (e.g. Mexican business owners with TX operations).', src:'https://www.dob.texas.gov/public/uploads/files/Laws-Regulations/statutes/fin_code.pdf', srcLabel:'Texas Finance Code §204' }
+    },
+    ca:{
+      res:{ s:'❌', lv:'rare', t:'Retail deposit. DFPI enforces IBBEA. Not available for CA residents at foreign branches.', src:'https://dfpi.ca.gov/banks-and-credit-unions/foreign-banks/', srcLabel:'California DFPI' },
+      nonres:{ s:'⚠️', lv:'niche', t:'Available for non-residents with Asia nexus. Niche: Asian corporates managing USD treasury.', src:'https://dfpi.ca.gov/banks-and-credit-unions/foreign-banks/', srcLabel:'California DFPI' }
+    },
+    ch:{ s:'✅', lv:'core', t:'Competitive rates, FDIC-insured. No residency distinction. Key liquidity management product for $150k–$10M clients.', src:'https://www.fdic.gov/deposit/deposits/insured.html', srcLabel:'FDIC Deposit Insurance' },
+    det:{ title:'MMA — resident/non-resident distinction is particularly relevant in Florida',
+      fl_res:'MMA is the preferred liquidity instrument in private banking. Blocked for FL residents by IBBEA §6.',
+      fl_nonres:'For the Latin American HNW non-resident in Miami, MMA at a branch is actively used: parking USD liquidity with yield while deciding on final allocation. This is the core of Miami offshore private banking.',
+      tx_res:'HNW Texas clients with large liquidity positions cannot manage that liquidity at a branch.',
+      tx_nonres:'Mexican business owners with USD surpluses can use MMA at a Texas branch.',
+      ca_res:'No MMA available for California residents at foreign branches.',
+      ca_nonres:'Asian corporates managing USD treasury can use MMA at California branches as a short-term alternative.',
+      ch:'The bank charter offers tiered-rate MMA, FDIC-insured, to any client regardless of residency.' }
+  },
+  {
+    id:'cds', prod:'CDs', sub:'Certificates of deposit',
+    fl:{
+      res:{ s:'⚠️', lv:'niche', t:'Available if amount exceeds $100k (IBBEA §6 threshold). Blocked for smaller balances.', src:'https://www.fdic.gov/regulations/laws/rules/6000-100.html', srcLabel:'FDIC / IBBEA §6' },
+      nonres:{ s:'✅', lv:'active', t:'No amount restriction. Common instrument for HNW Latin American non-residents in Miami.', src:'https://flofr.gov/sitePages/InternationalBanking.htm', srcLabel:'Florida OFR Ch.663' }
+    },
+    tx:{
+      res:{ s:'⚠️', lv:'niche', t:'Available if amount >$100k. For HNW clients with large surpluses, the threshold is easily exceeded.', src:'https://www.fdic.gov/regulations/laws/rules/6000-100.html', srcLabel:'FDIC / IBBEA §6' },
+      nonres:{ s:'✅', lv:'active', t:'No restriction. CDs for non-resident clients with TX nexus as term treasury instrument.', src:'https://www.dob.texas.gov/public/uploads/files/Laws-Regulations/statutes/fin_code.pdf', srcLabel:'Texas Finance Code' }
+    },
+    ca:{
+      res:{ s:'⚠️', lv:'niche', t:'Available if amount >$100k. For HNW with $150k+ in cash, threshold is reachable but DFPI adds scrutiny.', src:'https://dfpi.ca.gov/banks-and-credit-unions/foreign-banks/', srcLabel:'California DFPI' },
+      nonres:{ s:'✅', lv:'active', t:'No amount restriction for non-residents. Asian corporates use CDs as treasury instrument.', src:'https://dfpi.ca.gov/banks-and-credit-unions/foreign-banks/', srcLabel:'California DFPI' }
+    },
+    ch:{ s:'✅', lv:'core', t:'Retail (FDIC-insured) and institutional CDs for any client. Terms 3m–5y. No minimum threshold.', src:'https://www.fdic.gov/deposit/deposits/insured.html', srcLabel:'FDIC Deposit Insurance' },
+    det:{ title:'CDs — IBBEA $100k threshold makes this product partially viable for resident HNW clients',
+      fl_res:'For a HNW client with $150k+ in cash, the $100k IBBEA §6 threshold is surmountable. Placing $150k in a single CD means the restriction does not apply.',
+      fl_nonres:'For the Latin American non-resident in Miami, CDs are a standard instrument with no restrictions. Typical maturities of 3–12 months as transitional liquidity.',
+      tx_res:'The HNW Texas client can access CDs if the amount exceeds $100k. For the $500k–$10M segment, this is commonly the case.',
+      tx_nonres:'No restrictions. CDs for non-resident Mexican clients with Texas nexus are an active product.',
+      ca_res:'The $100k threshold is reachable for the $150k–$10M segment, but DFPI may add scrutiny for clients with links to high-risk jurisdictions.',
+      ca_nonres:'No restrictions for non-residents. Asian corporates use them as alternatives to money market funds.',
+      ch:'The bank charter can offer CDs to any client with no minimum threshold, FDIC-insured and fully integrated with the relationship.' }
+  },
+
+  { cat: 'TRANSACTIONAL BANKING' },
+  {
+    id:'online', prod:'Online banking', sub:'Digital banking portal',
+    fl:{
+      res:{ s:'⚠️', lv:'niche', t:'Without retail deposit products for residents, the online portal has minimal content for the HNW segment.', src:'https://www.fdic.gov/regulations/laws/rules/6000-100.html', srcLabel:'FDIC / IBBEA §6' },
+      nonres:{ s:'✅', lv:'active', t:'For non-residents with checking/MMA/CDs at the branch, the portal is the main management channel.', src:'https://flofr.gov/sitePages/InternationalBanking.htm', srcLabel:'Florida OFR' }
+    },
+    tx:{
+      res:{ s:'⚠️', lv:'niche', t:'Without checking or MMA for residents, the branch online portal is irrelevant for private banking.', src:'https://www.fdic.gov/regulations/laws/rules/6000-100.html', srcLabel:'FDIC / IBBEA §6' },
+      nonres:{ s:'⚠️', lv:'niche', t:'Available for non-residents with products at the branch. More limited functionality than charter.', src:'https://www.dob.texas.gov/public/uploads/files/Laws-Regulations/statutes/fin_code.pdf', srcLabel:'Texas Finance Code' }
+    },
+    ca:{
+      res:{ s:'⚠️', lv:'niche', t:'Without retail deposits for CA residents, the branch online banking adds no value.', src:'https://dfpi.ca.gov/banks-and-credit-unions/foreign-banks/', srcLabel:'California DFPI' },
+      nonres:{ s:'⚠️', lv:'niche', t:'Functional for non-residents with products at the branch, but inferior user experience vs. charter.', src:'https://dfpi.ca.gov/banks-and-credit-unions/foreign-banks/', srcLabel:'California DFPI' }
+    },
+    ch:{ s:'✅', lv:'core', t:'Portal integrated with all products for any client. Omnichannel. Primary interaction channel for the $150k–$10M segment.', src:'https://www.ffiec.gov/press/pdf/Authentication-and-Risk-Based-Security-Measures-in-the-Digital-Banking-Environment%20FFIEC%20Guidance%20Final%206-28-2011.pdf', srcLabel:'FFIEC Digital Banking' },
+    det:{ title:'Online banking — functional for non-residents with products at the branch; empty for residents without a deposit base',
+      fl_res:'Without checking or MMA for FL residents, the branch online portal has no relevant content for the target segment.',
+      fl_nonres:'For the Latin American non-resident with MMA and CDs at the Miami branch, online banking is the primary management channel.',
+      tx_res:'Without base products for residents, online banking is irrelevant.',
+      tx_nonres:'Non-residents with products at the branch can use the portal, but with more limited functionality than a charter.',
+      ca_res:'No value for California residents without products at the branch.',
+      ca_nonres:'Functional for non-residents with CDs or wholesale deposits, but inferior in user experience.',
+      ch:'The bank charter integrates online banking with all client products regardless of residency.' }
+  },
+  {
+    id:'intl', prod:'International transfers', sub:'SWIFT / international wire',
+    fl:{
+      res:{ s:'✅', lv:'active', t:'Available for residents. Real competitive advantage: LATAM network, better rates on emerging market pairs.', src:'https://www.federalreserve.gov/paymentsystems/regii-about.htm', srcLabel:'Fed / Reg II' },
+      nonres:{ s:'✅', lv:'core', t:'Core. Latin American non-resident uses the Miami branch as primary hub for international wires.', src:'https://flofr.gov/sitePages/InternationalBanking.htm', srcLabel:'Florida OFR' }
+    },
+    tx:{
+      res:{ s:'✅', lv:'active', t:'Available. USD/MXN dominant. Branch advantage for transfers along the Mexico-TX corridor.', src:'https://www.federalreserve.gov/paymentsystems/regii-about.htm', srcLabel:'Fed / Reg II' },
+      nonres:{ s:'✅', lv:'core', t:'Core for TX-MX binational client. The branch is the natural channel for cross-border wires.', src:'https://www.dob.texas.gov/public/uploads/files/Laws-Regulations/statutes/fin_code.pdf', srcLabel:'Texas Finance Code' }
+    },
+    ca:{
+      res:{ s:'✅', lv:'active', t:'USD/JPY, USD/CNH, USD/KRW for clients with Asia links, regardless of residency.', src:'https://dfpi.ca.gov/banks-and-credit-unions/foreign-banks/', srcLabel:'California DFPI' },
+      nonres:{ s:'✅', lv:'core', t:'Core for Asian non-resident. Branch is superior to charter in speed and rate on Asian currency pairs.', src:'https://dfpi.ca.gov/banks-and-credit-unions/foreign-banks/', srcLabel:'California DFPI' }
+    },
+    ch:{ s:'✅', lv:'core', t:'Fedwire direct participant. SWIFT integrated with client account. Available for all clients.', src:'https://www.federalreserve.gov/paymentsystems/fedfunds_about.htm', srcLabel:'Fed Fedwire' },
+    det:{ title:'International transfers — the one transactional product where branch has a real advantage over charter for both profiles',
+      fl_res:'Even for FL residents, international transfers from a branch with a LATAM network can be cheaper and faster than from a local chartered bank for pairs like USD/BRL or USD/COP.',
+      fl_nonres:'For the Latin American non-resident in Miami, the branch is the optimal channel for international wires: deep knowledge of origin-country banking systems, competitive rates and fast settlement.',
+      tx_res:'The Texas resident with family or business in Mexico will find better USD/MXN conditions at a Mexican bank branch than at most local chartered banks.',
+      tx_nonres:'The TX-MX binational client uses the branch as their exclusive hub for international wires. Often the only product they need.',
+      ca_res:'For the California resident with family in Asia, the branch can outperform the charter on USD/JPY, USD/CNH or USD/KRW pairs.',
+      ca_nonres:'The Asian non-resident executive uses the California branch as their primary U.S. bank precisely for international transfers. The advantage over a chartered bank can be 20–50 bps on Asian pairs.',
+      ch:'The bank charter has direct Fedwire and SWIFT access, but lacks the specialization of international branches in emerging market pairs.' }
+  },
+  {
+    id:'dom', prod:'Domestic transfers', sub:'ACH / domestic wire',
+    fl:{
+      res:{ s:'⚠️', lv:'niche', t:'Possible but with indirect Fedwire access (via correspondent). Without checking as a base, limited utility for residents.', src:'https://www.federalreserve.gov/paymentsystems/fedfunds_about.htm', srcLabel:'Fed Fedwire' },
+      nonres:{ s:'⚠️', lv:'niche', t:'Available for non-residents with an account at the branch. Indirect Fedwire access adds friction vs. charter.', src:'https://flofr.gov/sitePages/InternationalBanking.htm', srcLabel:'Florida OFR' }
+    },
+    tx:{
+      res:{ s:'⚠️', lv:'niche', t:'Niche. Without checking for residents, domestic transfers lack context in the private banking relationship.', src:'https://www.federalreserve.gov/paymentsystems/fedfunds_about.htm', srcLabel:'Fed Fedwire' },
+      nonres:{ s:'⚠️', lv:'niche', t:'Available for non-residents with an account. Indirect Fedwire reduces competitiveness vs. charter.', src:'https://www.dob.texas.gov/public/uploads/files/Laws-Regulations/statutes/fin_code.pdf', srcLabel:'Texas Finance Code' }
+    },
+    ca:{
+      res:{ s:'⚠️', lv:'niche', t:'Without retail deposit base for residents, domestic transfers are marginal in the branch.', src:'https://dfpi.ca.gov/banks-and-credit-unions/foreign-banks/', srcLabel:'California DFPI' },
+      nonres:{ s:'⚠️', lv:'niche', t:'Possible. Reduced functionality vs. charter due to indirect Fedwire and ACH access.', src:'https://dfpi.ca.gov/banks-and-credit-unions/foreign-banks/', srcLabel:'California DFPI' }
+    },
+    ch:{ s:'✅', lv:'core', t:'ACH and Fedwire direct participant. Same-day wires, scheduled transfers. Fully integrated with checking.', src:'https://www.federalreserve.gov/paymentsystems/fedfunds_about.htm', srcLabel:'Fed Fedwire' },
+    det:{ title:'Domestic transfers — indirect Fedwire access is a disadvantage for both profiles at the branch',
+      fl_res:'Without checking as a base account, domestic transfers for FL residents lack purpose at a branch.',
+      fl_nonres:'Non-residents with a branch account can make domestic wires, but with greater friction from indirect Fedwire access.',
+      tx_res:'Domestic transfers are a supporting product, not the core of the branch relationship for residents.',
+      tx_nonres:'Available for non-residents, but indirect Fedwire access can reduce speed and add cost vs. a chartered bank.',
+      ca_res:'Marginal for residents without base products at the branch.',
+      ca_nonres:'The Asian non-resident executive prefers to use the branch for international transfers and a chartered bank for domestic wires.',
+      ch:'The bank charter is a Fedwire direct participant: same-day wires without intermediaries, scheduled ACH and integrated Zelle.' }
+  },
+  {
+    id:'bill', prod:'Bill payments', sub:'Direct debit / bill pay',
+    fl:{
+      res:{ s:'❌', lv:'rare', t:'Without checking for residents, no bill payments are possible from the branch.', src:'https://www.fdic.gov/regulations/laws/rules/6000-100.html', srcLabel:'FDIC / IBBEA §6' },
+      nonres:{ s:'⚠️', lv:'niche', t:'Available for non-residents with checking at the branch, with limitations on the range of payees.', src:'https://flofr.gov/sitePages/InternationalBanking.htm', srcLabel:'Florida OFR' }
+    },
+    tx:{
+      res:{ s:'❌', lv:'rare', t:'Without retail deposit base for residents, bill payment has no support at the branch.', src:'https://www.fdic.gov/regulations/laws/rules/6000-100.html', srcLabel:'FDIC / IBBEA §6' },
+      nonres:{ s:'⚠️', lv:'niche', t:'Limited functionality. Non-resident can pay U.S. accounts but with greater friction than a charter.', src:'https://www.dob.texas.gov/public/uploads/files/Laws-Regulations/statutes/fin_code.pdf', srcLabel:'Texas Finance Code' }
+    },
+    ca:{
+      res:{ s:'❌', lv:'rare', t:'Without a current account for CA residents at foreign branches, bill payments are inaccessible.', src:'https://dfpi.ca.gov/banks-and-credit-unions/foreign-banks/', srcLabel:'California DFPI' },
+      nonres:{ s:'⚠️', lv:'niche', t:'Niche: occasional payments for non-residents with assets in CA (e.g. property maintenance).', src:'https://dfpi.ca.gov/banks-and-credit-unions/foreign-banks/', srcLabel:'California DFPI' }
+    },
+    ch:{ s:'✅', lv:'core', t:'Full bill pay from checking for any client: mortgage, insurance, utilities, cards. Full automation from private banking portal.', src:'https://www.nacha.org/ach-network', srcLabel:'NACHA ACH Network' },
+    det:{ title:'Bill payments — inaccessible for residents; partial functionality for non-residents',
+      fl_res:'No checking, no bill payments for FL residents.',
+      fl_nonres:'The Latin American non-resident with checking at the branch can set up occasional bill payments to U.S. accounts (e.g. property maintenance in Miami).',
+      tx_res:'No base account, no bill pay for Texas residents.',
+      tx_nonres:'The binational client with checking at the branch can schedule occasional payments to TX accounts.',
+      ca_res:'No bill payments available for California residents at foreign branches.',
+      ca_nonres:'Foreign property owners in CA can set up monthly maintenance or property tax payments from their branch account. Very specific niche.',
+      ch:'The bank charter integrates bill payments with checking for any client, without residency restrictions or product range limitations.' }
+  },
+  {
+    id:'fx', prod:'FX spot and forward', sub:'Currency exchange and hedging',
+    fl:{
+      res:{ s:'✅', lv:'active', t:'Available for residents. Branch outperforms charter on LATAM pairs (USD/BRL, USD/MXN, USD/COP) even for domestic clients.', src:'https://www.cftc.gov/LearnAndProtect/AdvisoriesAndArticles/retail_forex_transactions.html', srcLabel:'CFTC Retail FX' },
+      nonres:{ s:'✅', lv:'core', t:'Core. Latin American non-resident uses Miami branch as primary FX conversion channel.', src:'https://flofr.gov/sitePages/InternationalBanking.htm', srcLabel:'Florida OFR' }
+    },
+    tx:{
+      res:{ s:'✅', lv:'active', t:'USD/MXN for residents with Mexico-TX ties. Real competitive advantage over local chartered banks.', src:'https://www.cftc.gov/LearnAndProtect/AdvisoriesAndArticles/retail_forex_transactions.html', srcLabel:'CFTC Retail FX' },
+      nonres:{ s:'✅', lv:'core', t:'Core for TX-MX binational client. FX is frequently the primary product in the branch relationship.', src:'https://www.dob.texas.gov/public/uploads/files/Laws-Regulations/statutes/fin_code.pdf', srcLabel:'Texas Finance Code' }
+    },
+    ca:{
+      res:{ s:'✅', lv:'active', t:'USD/JPY, USD/CNH, USD/KRW for residents with Asia links. Asian bank branches are competitively superior on these pairs.', src:'https://dfpi.ca.gov/banks-and-credit-unions/foreign-banks/', srcLabel:'California DFPI' },
+      nonres:{ s:'✅', lv:'core', t:'Core for Asian non-resident. Definitive branch advantage over any American chartered bank on Asian currency pairs.', src:'https://dfpi.ca.gov/banks-and-credit-unions/foreign-banks/', srcLabel:'California DFPI' }
+    },
+    ch:{ s:'✅', lv:'core', t:'FX integrated with client account for all clients. Competitive on major pairs, less specialized on emerging market pairs.', src:'https://www.federalreserve.gov/releases/h10/', srcLabel:'Fed FX Rates' },
+    det:{ title:'FX — branch advantage over charter for both profiles when there are active international ties',
+      fl_res:'Even FL residents with family or investments in LATAM will find better rates at a branch of a bank with a Latin American network.',
+      fl_nonres:'The Latin American non-resident does FX at the Miami branch as a primary activity. It is often the reason they have an account there.',
+      tx_res:'The Texas resident with Mexico ties is the natural FX client profile at a Houston or Dallas branch.',
+      tx_nonres:'For the TX-MX binational client, USD/MXN FX at the branch is the first or second product by transaction volume.',
+      ca_res:'The California resident of Asian origin will find better conditions at an Asian bank branch for pairs like USD/JPY or USD/CNH.',
+      ca_nonres:'The Asian non-resident executive in CA uses the branch exclusively for FX and international transfers. The advantage over a charter on these pairs can be 20–50 bps.',
+      ch:'The bank charter has competitive FX on major pairs (USD/EUR, USD/GBP) but without the specialization of international branches on emerging market pairs.' }
+  },
+  {
+    id:'mobile', prod:'Mobile banking', sub:'Mobile app',
+    fl:{
+      res:{ s:'⚠️', lv:'niche', t:'Without retail deposit products for residents, the branch app has minimal practical content for private banking.', src:'https://www.fdic.gov/regulations/laws/rules/6000-100.html', srcLabel:'FDIC / IBBEA §6' },
+      nonres:{ s:'⚠️', lv:'niche', t:'Functional for non-residents with products at the branch. More limited experience than a chartered bank app.', src:'https://flofr.gov/sitePages/InternationalBanking.htm', srcLabel:'Florida OFR' }
+    },
+    tx:{
+      res:{ s:'⚠️', lv:'niche', t:'Without base products for residents, the branch mobile app is irrelevant for the private banking segment.', src:'https://www.fdic.gov/regulations/laws/rules/6000-100.html', srcLabel:'FDIC / IBBEA §6' },
+      nonres:{ s:'⚠️', lv:'niche', t:'Available for non-residents with an account. Reduced functionality vs. a chartered bank app.', src:'https://www.dob.texas.gov/public/uploads/files/Laws-Regulations/statutes/fin_code.pdf', srcLabel:'Texas Finance Code' }
+    },
+    ca:{
+      res:{ s:'⚠️', lv:'niche', t:'CA tech clients expect a best-in-class mobile experience — impossible from a branch without base products.', src:'https://dfpi.ca.gov/banks-and-credit-unions/foreign-banks/', srcLabel:'California DFPI' },
+      nonres:{ s:'⚠️', lv:'niche', t:'Asian non-resident uses the app mainly for FX and international transfers. More limited experience.', src:'https://dfpi.ca.gov/banks-and-credit-unions/foreign-banks/', srcLabel:'California DFPI' }
+    },
+    ch:{ s:'✅', lv:'core', t:'Full app with all products, biometrics, push notifications, Apple/Google Pay. Key acquisition and retention factor.', src:'https://www.ffiec.gov/press/pdf/Authentication-and-Risk-Based-Security-Measures-in-the-Digital-Banking-Environment%20FFIEC%20Guidance%20Final%206-28-2011.pdf', srcLabel:'FFIEC Digital Banking' },
+    det:{ title:'Mobile banking — functional for non-residents with specific use cases (FX/wires); limited for daily use',
+      fl_res:'Without base products, the branch app is an empty shell for FL residents.',
+      fl_nonres:'The Latin American non-resident uses the app mainly to check balances and make FX/wires. Not expecting the full omnichannel experience of a chartered bank.',
+      tx_res:'No practical value for Texas residents in the private banking segment.',
+      tx_nonres:'The TX-MX binational client uses the app to track transfers and FX. Occasional use, not daily.',
+      ca_res:'Silicon Valley tech clients have the highest mobile banking expectations in the country. The branch cannot compete here for residents.',
+      ca_nonres:'The Asian non-resident executive accepts a more basic mobile experience because their branch relationship is transactional (FX, wires), not full wealth management.',
+      ch:'The bank charter offers a full private banking app without residency restrictions: all products, advisor contact, personalized notifications and portfolio management features.' }
+  },
+
+  { cat: 'LENDING' },
+  {
+    id:'cc', prod:'Credit cards', sub:'Premium credit card',
+    fl:{
+      res:{ s:'❌', lv:'rare', t:'Retail product under CFPB / Regulation Z. Not accessible from an uninsured branch for FL residents.', src:'https://www.consumerfinance.gov/rules-policy/regulations/1026/', srcLabel:'CFPB / Reg Z' },
+      nonres:{ s:'❌', lv:'rare', t:'Credit card issuance in the U.S. requires a bank charter regardless of client residency. Not available from a branch.', src:'https://www.occ.gov/topics/charters-and-licensing/index-charters-and-licensing.html', srcLabel:'OCC Charter Requirements' }
+    },
+    tx:{
+      res:{ s:'❌', lv:'rare', t:'Same restriction. Credit cards not available from branches for Texas residents.', src:'https://www.consumerfinance.gov/rules-policy/regulations/1026/', srcLabel:'CFPB / Reg Z' },
+      nonres:{ s:'❌', lv:'rare', t:'Not available. U.S. card issuance requires bank charter regardless of client profile.', src:'https://www.occ.gov/topics/charters-and-licensing/index-charters-and-licensing.html', srcLabel:'OCC Charter Requirements' }
+    },
+    ca:{
+      res:{ s:'❌', lv:'rare', t:'Not available. CCFPL adds additional consumer protection layers. Not viable from a branch.', src:'https://dfpi.ca.gov/california-consumer-financial-protection-law/', srcLabel:'California CCFPL' },
+      nonres:{ s:'❌', lv:'rare', t:'Not available. Requires bank charter as card issuer regardless of client residency.', src:'https://www.occ.gov/topics/charters-and-licensing/index-charters-and-licensing.html', srcLabel:'OCC Charter Requirements' }
+    },
+    ch:{ s:'✅', lv:'core', t:'Premium cards regardless of residency. Visa Infinite / World Elite with rewards, concierge and travel insurance.', src:'https://www.consumerfinance.gov/rules-policy/regulations/1026/', srcLabel:'CFPB / Reg Z' },
+    det:{ title:'Credit cards — blocked at branches for all profiles; issuance requires bank charter',
+      fl_res:'Credit cards in the U.S. require a bank charter for issuance: the bank must be FDIC-insured to participate in Visa/Mastercard schemes as an issuer. A branch cannot issue cards regardless of client profile.',
+      fl_nonres:'Even if the client is a Latin American non-resident, the branch cannot issue them a U.S. credit card. The parent bank may issue a home-country card, but not a U.S. card from the branch.',
+      tx_res:'Same structural block. The branch is not a card issuer.',
+      tx_nonres:'Same for non-residents. A U.S. credit card is a bank charter-exclusive product.',
+      ca_res:'No issuance possible from a California branch for any profile.',
+      ca_nonres:'Same block. The Asian non-resident who wants a U.S. credit card needs a bank with a charter.',
+      ch:'The bank charter can issue premium credit cards to any eligible client regardless of residency. For the HNW non-resident client, a premium U.S. card can be especially attractive for insurance coverage and benefits network access.' }
+  },
+  {
+    id:'sblc', prod:'Standby letters of credit', sub:'Bank guarantees',
+    fl:{
+      res:{ s:'✅', lv:'active', t:'Available without residency restrictions. Branch can issue SBLCs for residents in real estate or business transactions in Miami.', src:'https://www.occ.gov/publications-and-resources/publications/comptrollers-handbook/files/standby-letters-of-credit/index-standby-letters-of-credit.html', srcLabel:'OCC / 12 USC §24' },
+      nonres:{ s:'✅', lv:'active', t:'Available without restrictions. Frequently used by Latin American non-residents needing guarantees for U.S. contracts.', src:'https://flofr.gov/sitePages/InternationalBanking.htm', srcLabel:'Florida OFR' }
+    },
+    tx:{
+      res:{ s:'✅', lv:'active', t:'Active. SBLCs for residents in energy sector and Texas real estate transactions.', src:'https://www.occ.gov/publications-and-resources/publications/comptrollers-handbook/files/standby-letters-of-credit/index-standby-letters-of-credit.html', srcLabel:'OCC / 12 USC §24' },
+      nonres:{ s:'✅', lv:'active', t:'Active. Non-resident Mexican clients with TX contracts regularly use SBLCs issued by the branch.', src:'https://www.dob.texas.gov/public/uploads/files/Laws-Regulations/statutes/fin_code.pdf', srcLabel:'Texas Finance Code' }
+    },
+    ca:{
+      res:{ s:'✅', lv:'active', t:'Active. SBLCs for residents in real estate and business transactions in SF/LA.', src:'https://www.occ.gov/publications-and-resources/publications/comptrollers-handbook/files/standby-letters-of-credit/index-standby-letters-of-credit.html', srcLabel:'OCC / 12 USC §24' },
+      nonres:{ s:'✅', lv:'active', t:'Active. Asian non-residents with contracts or property in CA use SBLCs from Asian bank branches.', src:'https://dfpi.ca.gov/banks-and-credit-unions/foreign-banks/', srcLabel:'California DFPI' }
+    },
+    ch:{ s:'✅', lv:'core', t:'Core under 12 USC §24. Integrated with the client credit line. No separate cash collateral if client has deposits or portfolio at the bank.', src:'https://www.occ.gov/publications-and-resources/publications/comptrollers-handbook/files/standby-letters-of-credit/index-standby-letters-of-credit.html', srcLabel:'OCC / 12 USC §24' },
+    det:{ title:'Standby LCs — one of the few lending products with no resident/non-resident distinction at the branch',
+      fl_res:'SBLCs are institutional, not retail products. IBBEA §6 does not apply. The branch can issue them for residents without limitation.',
+      fl_nonres:'Equally accessible for non-residents. Latin American clients with a commercial lease in Miami frequently need SBLCs from a recognized institution.',
+      tx_res:'HNW Texas clients in the energy sector use SBLCs as performance guarantees or collateral in development contracts.',
+      tx_nonres:'Non-resident Mexican business owners with TX contracts use SBLCs issued by the branch.',
+      ca_res:'In the SF and LA real estate market, SBLCs are used as enhanced security deposits or collateral in high-value transactions.',
+      ca_nonres:'Foreign owners of CA real estate or businesses use SBLCs from branches with international presence.',
+      ch:'The bank charter integrates the SBLC with the client global credit line. With deposits at the bank, the SBLC can be issued without additional cash collateral.' }
+  },
+  {
+    id:'sbl', prod:'Securities-based lending', sub:'Portfolio-backed credit facility',
+    fl:{
+      res:{ s:'⚠️', lv:'niche', t:'Possible via affiliated broker-dealer. For residents with portfolios >$500k, viable but with more friction than charter.', src:'https://www.finra.org/rules-guidance/rulebooks/finra-rules/4210', srcLabel:'FINRA Rule 4210' },
+      nonres:{ s:'⚠️', lv:'niche', t:'Available for non-residents with portfolio managed via branch/affiliate. Common in Miami offshore private banking for LATAM clients.', src:'https://flofr.gov/sitePages/InternationalBanking.htm', srcLabel:'Florida OFR' }
+    },
+    tx:{
+      res:{ s:'⚠️', lv:'niche', t:'Niche. Viable via affiliate structure for residents with portfolios >$500k in energy sector stocks.', src:'https://www.finra.org/rules-guidance/rulebooks/finra-rules/4210', srcLabel:'FINRA Rule 4210' },
+      nonres:{ s:'⚠️', lv:'niche', t:'Niche. Available for non-residents with affiliate portfolio. More friction than charter due to coordination between entities.', src:'https://www.dob.texas.gov/public/uploads/files/Laws-Regulations/statutes/fin_code.pdf', srcLabel:'Texas Finance Code' }
+    },
+    ca:{
+      res:{ s:'⚠️', lv:'niche', t:'Niche. DFPI may require additional disclosure. For residents with concentrated RSUs, viable via affiliate.', src:'https://dfpi.ca.gov/california-consumer-financial-protection-law/', srcLabel:'California CCFPL' },
+      nonres:{ s:'⚠️', lv:'niche', t:'Niche. Non-residents with CA affiliate portfolio can access SBL but less efficiently than via charter.', src:'https://dfpi.ca.gov/banks-and-credit-unions/foreign-banks/', srcLabel:'California DFPI' }
+    },
+    ch:{ s:'✅', lv:'core', t:'Core. Custody and lender integrated. LTV 50–70%. Rates SOFR + spread. Key product for the $500k–$10M segment.', src:'https://www.finra.org/rules-guidance/rulebooks/finra-rules/4210', srcLabel:'FINRA Rule 4210' },
+    det:{ title:'Securities-based lending — viable for both profiles at the branch, but with friction due to lack of native integration',
+      fl_res:'The FL resident with a portfolio at an affiliated broker-dealer can access SBL from the branch, but the process requires coordination between two regulated entities.',
+      fl_nonres:'For the Latin American non-resident with assets managed from Miami, SBL is an active product. The branch can structure it but with the friction of coordinating entities.',
+      tx_res:'The HNW Texas resident with energy stock portfolios can access SBL via affiliate, especially to fund new investments without triggering capital gains.',
+      tx_nonres:'Similar for non-residents. The two-entity model friction applies equally.',
+      ca_res:'The California resident with concentrated RSUs can use SBL via affiliate, but less efficiently than at a chartered bank.',
+      ca_nonres:'For non-residents with CA portfolios, SBL is possible but with greater regulatory complexity from the DFPI.',
+      ch:'The bank charter integrates custody and lending: straightforward process without coordinating separate entities. The clearest competitive advantage over the branch model for this product.' }
+  },
+  {
+    id:'mortgage', prod:'Mortgages', sub:'Residential mortgage (jumbo)',
+    fl:{
+      res:{ s:'⚠️', lv:'rare', t:'Technically possible with NMLS-FL but not viable in practice. No retail network, no distribution model.', src:'https://www.consumerfinance.gov/rules-policy/regulations/1024/', srcLabel:'CFPB / RESPA' },
+      nonres:{ s:'⚠️', lv:'niche', t:'More viable for foreign investors: mortgage on U.S. property does not require retail infrastructure. Specialized niche.', src:'https://flofr.gov/sitePages/InternationalBanking.htm', srcLabel:'Florida OFR' }
+    },
+    tx:{
+      res:{ s:'⚠️', lv:'rare', t:'Not viable. Texas Art. XVI §50 adds unique complexity for home equity. No retail model at a branch.', src:'https://statutes.capitol.texas.gov/Docs/CN/htm/CN.16.htm', srcLabel:'Texas Const. Art. XVI §50' },
+      nonres:{ s:'⚠️', lv:'niche', t:'More viable for foreign investors in Texas real estate. Art. XVI §50 still applies but the non-resident lending model is more standardized.', src:'https://statutes.capitol.texas.gov/Docs/CN/htm/CN.16.htm', srcLabel:'Texas Const. Art. XVI §50' }
+    },
+    ca:{
+      res:{ s:'⚠️', lv:'rare', t:'Not viable. HBOR + CCFPL make compliance prohibitive without a retail network.', src:'https://dfpi.ca.gov/california-consumer-financial-protection-law/', srcLabel:'California HBOR / CCFPL' },
+      nonres:{ s:'⚠️', lv:'niche', t:'More viable for foreign investors in SF/LA. Non-resident mortgage on U.S. property is a relatively standardized product.', src:'https://dfpi.ca.gov/banks-and-credit-unions/foreign-banks/', srcLabel:'California DFPI' }
+    },
+    ch:{ s:'✅', lv:'core', t:'Jumbo mortgages with rates tied to total client relationship. Available for both residents and non-residents.', src:'https://www.consumerfinance.gov/rules-policy/regulations/1024/', srcLabel:'CFPB / RESPA' },
+    det:{ title:'Mortgages — resident/non-resident distinction opens a viability window at the branch for foreign investors',
+      fl_res:'A mortgage for a FL resident requires full retail infrastructure: NMLS, CFPB compliance, distribution network. Not viable from a branch.',
+      fl_nonres:'A mortgage for a foreign investor buying property in Miami is structured more like an asset-backed loan secured by the property. This is the niche where the branch can be competitive for HNW Latin American clients investing in FL real estate.',
+      tx_res:'Art. XVI §50 and lack of a retail model make mortgages not viable for Texas residents from a branch.',
+      tx_nonres:'The foreign investor mortgage in Texas is structured as a property-secured loan without the domestic home equity restrictions.',
+      ca_res:'Not viable for California residents without a retail network.',
+      ca_nonres:'Foreign investors buying property in SF or LA are frequent buyers. An Asian bank branch can structure the mortgage for its non-resident client. Active niche in the California real estate market.',
+      ch:'The bank charter can originate mortgages for both residents and non-residents with preferential rates tied to the total client relationship.' }
+  },
+  {
+    id:'luxury', prod:'Other: planes, yachts', sub:'Luxury asset financing',
+    fl:{
+      res:{ s:'⚠️', lv:'niche', t:'Available as asset-based lending for residents. The asset is the collateral, outside the scope of regulated retail lending.', src:'https://www.occ.gov/publications-and-resources/publications/comptrollers-handbook/files/asset-based-lending/index-asset-based-lending.html', srcLabel:'OCC Asset-Based Lending' },
+      nonres:{ s:'⚠️', lv:'niche', t:'Available for HNW non-residents with luxury assets in the U.S. Branch can finance jets or yachts as asset-based loans.', src:'https://flofr.gov/sitePages/InternationalBanking.htm', srcLabel:'Florida OFR' }
+    },
+    tx:{
+      res:{ s:'⚠️', lv:'niche', t:'Niche. Asset-based lending for HNW residents in the energy sector with corporate aircraft or vessels.', src:'https://www.occ.gov/publications-and-resources/publications/comptrollers-handbook/files/asset-based-lending/index-asset-based-lending.html', srcLabel:'OCC Asset-Based Lending' },
+      nonres:{ s:'⚠️', lv:'niche', t:'Available for non-residents with luxury assets in TX or U.S.-registered. Standard asset-based structure.', src:'https://www.dob.texas.gov/public/uploads/files/Laws-Regulations/statutes/fin_code.pdf', srcLabel:'Texas Finance Code' }
+    },
+    ca:{
+      res:{ s:'⚠️', lv:'niche', t:'Niche. Yachts at Marina del Rey or aircraft at Van Nuys. Available as asset-based lending for residents.', src:'https://www.occ.gov/publications-and-resources/publications/comptrollers-handbook/files/asset-based-lending/index-asset-based-lending.html', srcLabel:'OCC Asset-Based Lending' },
+      nonres:{ s:'⚠️', lv:'niche', t:'Available for foreign investors with yachts or aircraft registered in the U.S.', src:'https://dfpi.ca.gov/banks-and-credit-unions/foreign-banks/', srcLabel:'California DFPI' }
+    },
+    ch:{ s:'✅', lv:'active', t:'Active. Asset-based lending integrated with the private banking relationship. Relationship pricing across all products.', src:'https://www.occ.gov/publications-and-resources/publications/comptrollers-handbook/files/asset-based-lending/index-asset-based-lending.html', srcLabel:'OCC Asset-Based Lending' },
+    det:{ title:'Planes, yachts — asset-based lending viable at branches for both profiles; outside retail restrictions',
+      fl_res:'Financing of private aircraft and yachts is structured outside regulated retail lending. The asset is the collateral. The branch can offer this to residents without IBBEA §6 restrictions.',
+      fl_nonres:'For the Latin American non-resident client with a private jet or yacht in U.S. waters, the Miami branch is the natural channel for asset financing.',
+      tx_res:'The HNW Texas resident in the energy sector can finance corporate aircraft and Gulf Coast vessels from a branch as asset-based loans.',
+      tx_nonres:'Foreign business owners with luxury assets registered in the U.S. can obtain financing from the branch.',
+      ca_res:'Yachts at Southern California marinas and private aircraft are common assets in the CA HNW segment.',
+      ca_nonres:'The foreign investor with luxury assets in CA can use the branch for financing. Specialized but real niche.',
+      ch:'The bank charter can integrate luxury asset financing with the full private banking relationship, enabling cross-product relationship pricing.' }
+  },
+];
+
+const tb = document.getElementById('tb');
+let openId = null;
+
+DATA.forEach(r => {
+  if (r.cat) {
+    const tr = document.createElement('tr');
+    tr.className = 'cat';
+    tr.innerHTML = `<td colspan="5">${r.cat}</td>`;
+    tb.appendChild(tr);
+    return;
+  }
+
+  const tr = document.createElement('tr');
+  tr.className = 'item';
+  tr.id = 'r-' + r.id;
+
+  const branchCols = [r.fl, r.tx, r.ca].map(c => `
+    <td><div class="cell-inner">
+      <div class="half half-res">
+        <div class="half-tag">Resident</div>
+        <div class="ct"><span class="sym">${c.res.s}</span><div class="pip-row">${pips(c.res.lv)}</div><span class="lv" style="color:${C[c.res.lv]}">${LBL[c.res.lv]}</span></div>
+        <div class="desc">${c.res.t}</div>
+        ${c.res.src ? `<a class="src" href="${c.res.src}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${c.res.srcLabel} ↗</a>` : ''}
+      </div>
+      <div class="half">
+        <div class="half-tag">Non-resident</div>
+        <div class="ct"><span class="sym">${c.nonres.s}</span><div class="pip-row">${pips(c.nonres.lv)}</div><span class="lv" style="color:${C[c.nonres.lv]}">${LBL[c.nonres.lv]}</span></div>
+        <div class="desc">${c.nonres.t}</div>
+        ${c.nonres.src ? `<a class="src" href="${c.nonres.src}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${c.nonres.srcLabel} ↗</a>` : ''}
+      </div>
+    </div></td>
+  `).join('');
+
+  const chCell = `<td><div class="cell-inner">
+    <div class="half">
+      <div class="half-tag" style="color:var(--color-text-success)">Resident &amp; Non-resident</div>
+      <div class="ct"><span class="sym">${r.ch.s}</span><div class="pip-row">${pips(r.ch.lv)}</div><span class="lv" style="color:${C[r.ch.lv]}">${LBL[r.ch.lv]}</span></div>
+      <div class="desc">${r.ch.t}</div>
+      ${r.ch.src ? `<a class="src" href="${r.ch.src}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${r.ch.srcLabel} ↗</a>` : ''}
+    </div>
+  </div></td>`;
+
+  tr.innerHTML = `
+    <td class="lbl">${r.prod}<span class="sub">${r.sub}</span><span class="arr">›</span></td>
+    ${branchCols}${chCell}
+  `;
+
+  const det = document.createElement('tr');
+  det.className = 'det hidden';
+  det.id = 'd-' + r.id;
+  det.innerHTML = `<td colspan="5"><div class="det-box">
+    <h4>${r.det.title}</h4>
+    <div class="det-cols">
+      <div class="det-col">
+        <h5>Florida</h5>
+        <div class="sub-h">Resident</div><p>${r.det.fl_res}</p>
+        <div class="sub-h">Non-resident</div><p>${r.det.fl_nonres}</p>
+      </div>
+      <div class="det-col">
+        <h5>Texas</h5>
+        <div class="sub-h">Resident</div><p>${r.det.tx_res}</p>
+        <div class="sub-h">Non-resident</div><p>${r.det.tx_nonres}</p>
+      </div>
+      <div class="det-col">
+        <h5>California</h5>
+        <div class="sub-h">Resident</div><p>${r.det.ca_res}</p>
+        <div class="sub-h">Non-resident</div><p>${r.det.ca_nonres}</p>
+      </div>
+      <div class="det-col">
+        <h5>Bank Charter</h5>
+        <p>${r.det.ch}</p>
+      </div>
+    </div>
+  </div></td>`;
+
+  tr.addEventListener('click', () => {
+    const isOpen = !det.classList.contains('hidden');
+    if (openId && openId !== r.id) {
+      document.getElementById('d-' + openId).classList.add('hidden');
+      document.getElementById('r-' + openId).classList.remove('open');
+    }
+    det.classList.toggle('hidden', isOpen);
+    tr.classList.toggle('open', !isOpen);
+    openId = isOpen ? null : r.id;
+  });
+
+  tb.appendChild(tr);
+  tb.appendChild(det);
+});
+</script>
