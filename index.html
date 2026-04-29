@@ -136,16 +136,16 @@ const DATA = [
   {
     id:'debit', prod:'Debit cards', sub:'Debit card',
     fl:{
-      res:{ s:'❌', lv:'rare', t:'Derivative of the checking account. No checking for FL residents means no debit card can be issued.', src:'https://www.fdic.gov/regulations/laws/rules/6000-100.html', srcLabel:'FDIC / IBBEA §6' },
-      nonres:{ s:'⚠️', lv:'niche', t:'Available if non-resident client has checking at the branch. More limited functionality than charter.', src:'https://flofr.gov/sitePages/InternationalBanking.htm', srcLabel:'Florida OFR' }
+      res:{ s:'❌', lv:'rare', t:'Debit cards require a checking account, which cannot be offered to U.S. retail clients under a foreign bank branch model (IBBEA §6).', src:'https://www.law.cornell.edu/uscode/text/12/3104', srcLabel:'12 U.S.C. §3104' },
+      nonres:{ s:'⚠️', lv:'niche', t:'May be offered in specific non-retail account structures, but functionality is more restricted than under a bank charter model.', src:'https://www.law.cornell.edu/uscode/text/12/3104', srcLabel:'12 U.S.C. §3104' }
     },
     tx:{
-      res:{ s:'❌', lv:'rare', t:'No retail deposit base means no debit card. IBBEA restriction blocks the underlying product.', src:'https://www.fdic.gov/regulations/laws/rules/6000-100.html', srcLabel:'FDIC / IBBEA §6' },
-      nonres:{ s:'⚠️', lv:'niche', t:'Available as an add-on to checking for non-resident clients. Limited niche.', src:'https://www.dob.texas.gov/public/uploads/files/Laws-Regulations/statutes/fin_code.pdf', srcLabel:'Texas Finance Code' }
+      res:{ s:'❌', lv:'rare', t:'Debit cards are not available due to lack of retail deposit accounts (checking).', src:'https://www.law.cornell.edu/uscode/text/12/3104', srcLabel:'12 U.S.C. §3104' },
+      nonres:{ s:'⚠️', lv:'niche', t:'Occasional use in cross-border or corporate-linked relationships. Not a standard private banking product.', src:'https://www.law.cornell.edu/uscode/text/12/3104', srcLabel:'12 U.S.C. §3104' }
     },
     ca:{
-      res:{ s:'❌', lv:'rare', t:'DFPI enforces IBBEA. No retail deposit means no debit card for CA residents.', src:'https://dfpi.ca.gov/banks-and-credit-unions/foreign-banks/', srcLabel:'California DFPI' },
-      nonres:{ s:'⚠️', lv:'niche', t:'Available if non-resident client has checking open at the branch.', src:'https://dfpi.ca.gov/banks-and-credit-unions/foreign-banks/', srcLabel:'California DFPI' }
+      res:{ s:'❌', lv:'rare', t:'No debit card offering for U.S. retail clients without a checking account.', src:'https://www.law.cornell.edu/uscode/text/12/3104', srcLabel:'12 U.S.C. §3104I' },
+      nonres:{ s:'⚠️', lv:'niche', t:'May be available in specific international setups, subject to tighter compliance and operational constraints.', src:'https://www.law.cornell.edu/uscode/text/12/3104', srcLabel:'12 U.S.C. §3104' }
     },
     ch:{ s:'✅', lv:'core', t:'Premium Visa/Mastercard regardless of residency. Global ATM access. Key daily-use product in private banking.', src:'https://www.fdic.gov/deposit/deposits/insured.html', srcLabel:'FDIC Deposit Insurance' },
     det:{ title:'Debit cards — derived product of checking; accessible to non-residents if they have the base account',
